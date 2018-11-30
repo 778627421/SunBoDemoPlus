@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<FrameLayout
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:id="@+id/previewLayout"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="#000">
+
+
+
+    <TextureView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/textureView"/>
+
+
+    <LinearLayout
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:id="@+id/waterRootLayout"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:layout_gravity="bottom"
+        android:visibility="gone"
+        >
+        <include
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:id="@+id/waterMaskLayout"
+            layout="@layout/outdoor_cemera_water_layout">
+        </include>
+
+    </LinearLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <com.fx.android.watercamerademo.Camera.CaptureFocuseView
+            android:id="@+id/viewFocuse"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:layout_centerInParent="true"
+            android:visibility="invisible" />
+
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_height="50dp"
+        android:layout_width="match_parent"
+        android:layout_gravity="top"
+        android:layout_alignParentTop="true"
+        android:background="#a000">
+
+
+        <ImageView
+            android:layout_height="30dp"
+            android:layout_width="30dp"
+            android:id="@+id/openFlash"
+            android:gravity="center"
+            android:src="@drawable/flashlight_off_icn"
+            android:onClick="onClick"
+            android:layout_marginLeft="15dp"
+            android:layout_centerVertical="true"
+            android:layout_alignParentLeft="true"/>
+
+        <ImageView
+            android:layout_height="30dp"
+            android:layout_width="30dp"
+            android:id="@+id/swichCamera"
+            android:src="@drawable/swap_icn"
+            android:onClick="onClick"
+            android:layout_centerVertical="true"
+            android:scaleType="center"
+            android:layout_marginRight="15dp"
+            android:layout_alignParentRight="true"/>
+
+    </RelativeLayout>
+
+
+    <LinearLayout
+        android:layout_height="96dp"
+        android:layout_width="match_parent"
+        android:id="@+id/botomLayout"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_gravity="bottom"
+        android:background="#a000"
+        android:layout_alignParentBottom="true">
+
+
+
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/btnCancel"
+                android:text="取消"
+                android:textColor="#FFF"
+                android:clickable="true"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+
+            <ImageView
+                android:layout_height="wrap_content"
+                android:layout_width="wrap_content"
+                android:id="@+id/handle"
+                android:src="@drawable/bn_camera_capture_selector"
+                android:scaleType="center"
+                android:layout_centerInParent="true"/>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1">
+        </RelativeLayout>
+
+    </LinearLayout>
+
+</FrameLayout>
