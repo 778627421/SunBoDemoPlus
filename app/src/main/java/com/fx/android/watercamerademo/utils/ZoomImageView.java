@@ -11,6 +11,7 @@ import android.view.ScaleGestureDetector;
 import android.view.ScaleGestureDetector.OnScaleGestureListener;
 import android.view.View;
 import android.view.View.OnTouchListener;
+import android.view.ViewConfiguration;
 import android.view.ViewTreeObserver.OnGlobalLayoutListener;
 import android.widget.ImageView;
 
@@ -42,6 +43,25 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener,
      */
     private ScaleGestureDetector mScaleGestureDetector;
 
+//==========================下面是自由移动的成员变量======================================
+    /**
+     * 上一次移动的手指个数，也可以说是多点个数
+     */
+    private int mLastPoint;
+    /**
+     * 上次的中心点的x位置
+     */
+    private float mLastX;
+    /**
+     * 上一次中心点的y位置
+     */
+    private float mLastY;
+    /**
+     * 一个临界值，即是否触发移动的临界值
+     */
+    private float mScaleSlop;
+    /**是否可移动*/
+    private boolean isCanDrag = false;
 
     public ZoomImageView(Context context)
     {
@@ -63,6 +83,9 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener,
         mScaleGestureDetector = new ScaleGestureDetector(context, this);
         //触摸回调
         setOnTouchListener(this);
+
+        //获得系统给定的触发移动效果的临界值
+        mScaleSlop = ViewConfiguration.get(context).getScaledTouchSlop();
 
     }
 
@@ -292,6 +315,7 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener,
 
     }
 
+
     /**
      * 监听触摸事件
      */
@@ -303,10 +327,125 @@ public class ZoomImageView extends ImageView implements OnGlobalLayoutListener,
             //将触摸事件传递给手势缩放这个类
             mScaleGestureDetector.onTouchEvent(event);
         }
+
+
+        //获得多点个数，也叫屏幕上手指的个数
+        int pointCount = event.getPointerCount();
+
+        float x =0;
+        float y =0;//中心点的x和y
+
+        for(int i=0;i<pointCount;i++)
+        {
+            x+=event.getX(i);
+            y+=event.getY(i);
+        }
+
+        //求出中心点的位置
+        x/= pointCount;
+        y/= pointCount;
+
+        //如果手指的数量发生了改变，则不移动
+        if(mLastPoint != pointCount)
+        {
+            isCanDrag = false;
+            mLastX = x;
+            mLastY = y;
+
+        }
+        mLastPoint = pointCount;
+
+
+        switch(event.getAction())
+        {
+            case MotionEvent.ACTION_MOVE:
+
+                //求出移动的距离
+                float dx = x - mLastX;
+                float dy = y- mLastY;
+
+                if(!isCanDrag)
+                {
+                    isCanDrag = isCanDrag(dx,dy);
+                }
+
+                if(isCanDrag)
+                {
+                    //如果图片能正常显示，就不需要移动了
+                    RectF rectf = getDrawableRectF();
+                    if(rectf.width()<=getWidth())
+                    {
+                        dx = 0;
+                    }
+                    if(rectf.height()<=getHeight())
+                    {
+                        dy = 0;
+                    }
+
+
+                    //开始移动
+                    scaleMatrix.postTranslate(dx, dy);
+                    //处理移动后图片边界与屏幕有间隙或者不居中的问题
+                    checkBoderAndCenterWhenMove();
+                    setImageMatrix(scaleMatrix);
+                }
+
+                mLastX = x;
+                mLastY = y;
+
+
+                break;
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                mLastPoint = 0;
+                break;
+
+        }
+
         return true;
     }
+    /**
+     * 处理移动后图片边界与屏幕有间隙或者不居中的问题
+     * 这跟我们前面写的代码很像
+     */
+    private void checkBoderAndCenterWhenMove() {
 
+        RectF rectf = getDrawableRectF();
 
+        float delaX = 0;
+        float delaY = 0;
+        int width = getWidth();
+        int height = getHeight();
+
+        if(rectf.width()>width&&rectf.left>0)
+        {
+            delaX = - rectf.left;
+        }
+        if(rectf.width()>width&&rectf.right<width)
+        {
+            delaX = width - rectf.right;
+        }
+        if(rectf.height()>height&&rectf.top>0)
+        {
+            delaY = - rectf.top;
+        }
+        if(rectf.height()>height&&rectf.bottom<height)
+        {
+            delaY = height - rectf.bottom;
+        }
+
+        scaleMatrix.postTranslate(delaX, delaY);
+    }
+    /**
+     * 判断是否触发移动效果
+     * @param dx
+     * @param dy
+     * @return
+     */
+    private boolean isCanDrag(float dx, float dy) {
+
+        return Math.sqrt(dx*dx+dy*dy)>mScaleSlop;
+    }
 
 
 }
